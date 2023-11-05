@@ -1,0 +1,415 @@
+OS Version
+	uname -r
+	cat /etc/release
+	cat /etc/*-release | grep "PRETTY_NAME" | sed 's/PRETTY_NAME=//g' | sed 's/"//g'
+	cat /etc/*-release | grep "PRETTY_NAME" | sed 's/PRETTY_NAME=//g' | sed 's/"//g' | while read x; do echo -e "OS Version\t$x"; done > 2.1.txt
+	
+Kernel Version
+	pkg list entire
+	pkg info entire
+	cat /etc/*-release | grep "BUILD_ID" | sed 's/BUILD_ID=//g' | sed 's/"//g'
+	cat /etc/*-release | grep "BUILD_ID" | sed 's/BUILD_ID=//g' | sed 's/"//g' | while read x; do echo -e "Kernel Version\t$x"; done >> 2.1.txt
+
+Services - Common Services
+	svcs -Ho state svc:/application/graphical-login/gdm:default
+	
+	svcs -Ho state svc:/network/smtp:sendmail
+
+	svcs -Ho state svc:/network/nis/server
+	svcs -Ho state svc:/network/nis/domain
+
+	svcs -Ho state svc:/network/nis/client
+	svcs -Ho state svc:/network/nis/domain
+
+	svcs -Ho state svc:/system/filesystem/rmvolmgr
+	svcs -Ho state svc:/network/rpc/smserver
+
+	svcs -Ho state svc:/network/http:apache22
+	
+Services - Specifif Services
+	svcs -Ho state svc:/network/rpc/keyserv
+	
+	svcs -Ho state svc:/network/security/ktkt_warn
+	 
+	svcs -Ho state svc:/network/rpc/gss
+
+	svcs -Ho state svc:/system/filesystem/autofs
+	
+	svcs -xv svc:/network/rpc/bind
+	svcs -Ho state svc:/network/rpc/bind
+
+Kernel Tuning - General Kernel Parameters
+	ls -ld /var/cores/
+	
+	coreadm | grep "global core dumps"
+	coreadm | grep "kernel zone core dumps"
+	coreadm | grep "per-process core dumps"
+	coreadm | grep "global setid core dumps"
+	coreadm | grep "per-process setid core dumps"
+	coreadm | grep "global core dump logging"
+	
+	grep "^set noexec_user_stack.*=1" /etc/system
+	echo "noexec_user_stack/D" | mdb -k
+	
+Kernel Tuning - Networking Kernel Parameters
+	grep "^TCP_STRONG_ISS=" /etc/default/inetinit
+
+	ipadm show-prop -p _forward_src_routed -co current ipv4
+	ipadm show-prop -p _forward_src_routed -co persistent ipv4
+	ipadm show-prop -p _forward_src_routed -co current ipv6
+	ipadm show-prop -p _forward_src_routed -co persistent ipv6
+	
+	ipadm show-prop -p _forward_directed_broadcasts -co current ip
+	ipadm show-prop -p _forward_directed_broadcasts -co persistent ip
+
+	ipadm show-prop -p _respond_to_timestamp -co current ip
+	ipadm show-prop -p _respond_to_timestamp -co persistent ip
+
+	ipadm show-prop -p _respond_to_timestamp_broadcast -co current ip
+	ipadm show-prop -p _respond_to_timestamp_broadcast -co persistent ip
+
+	ipadm show-prop -p _respond_to_address_mask_broadcast -co current ip
+	ipadm show-prop -p _respond_to_address_mask_broadcast -co persistent ip
+	
+	ipadm show-prop -p _respond_to_echo_broadcast -co current ip
+	ipadm show-prop -p _respond_to_echo_broadcast -co persistent ip
+
+	ipadm show-prop -p _respond_to_echo_multicast -co current ipv4
+	ipadm show-prop -p _respond_to_echo_multicast -co persistent ipv4
+	ipadm show-prop -p _respond_to_echo_multicast -co current ipv6
+	ipadm show-prop -p _respond_to_echo_multicast -co persistent ipv6
+	
+	ipadm show-prop -p _ignore_redirect -co current ipv4
+	ipadm show-prop -p _ignore_redirect -co persistent ipv4
+	ipadm show-prop -p _ignore_redirect -co current ipv6
+	ipadm show-prop -p _ignore_redirect -co persistent ipv6
+	
+	ipadm show-prop -p _strict_dst_multihoming -co current ipv4
+	ipadm show-prop -p _strict_dst_multihoming -co persistent ipv4
+	ipadm show-prop -p _strict_dst_multihoming -co current ipv6
+	ipadm show-prop -p _strict_dst_multihoming -co persistent ipv6
+	
+	ipadm show-prop -p _send_redirects -co current ipv4
+	ipadm show-prop -p _send_redirects -co persistent ipv4
+	ipadm show-prop -p _send_redirects -co current ipv6
+	ipadm show-prop -p _send_redirects -co persistent ipv6
+	
+	ipadm show-prop -p _rev_src_routes -co current tcp
+	ipadm show-prop -p _rev_src_routes -co persistent tcp
+	
+	ipadm show-prop -p _conn_req_max_q0 -co current tcp
+	ipadm show-prop -p _conn_req_max_q0 -co persistent tcp
+
+	ipadm show-prop -p _conn_req_max_q -co current tcp
+	ipadm show-prop -p _conn_req_max_q -co persistent tcp
+	
+	routeadm -p |egrep "^ipv4-routing |^ipv4-forwarding " |awk '{printf("%s %s\n", $1, $NF); }'
+	routeadm -p |egrep "^ipv6-routing |^ipv6-forwarding " |awk '{printf("%s %s\n", $1, $NF); }'
+	
+Auditing
+	sudo auditconfig -getplugin audit_binfile
+	
+	grep ":GGTBK Solaris Audit Class" /etc/security/audit_class
+	
+	grep ":AUE_ACCEPT:" /etc/security/audit_event
+	grep ":AUE_CONNECT:" /etc/security/audit_event
+	grep ":AUE_SOCKACCEPT:" /etc/security/audit_event
+	grep ":AUE_SOCKCONNECT:" /etc/security/audit_event
+	grep ":AUE_inetd_connect:" /etc/security/audit_event
+	grep ":AUE_CHMOD:" /etc/security/audit_event
+	grep ":AUE_CHOWN:" /etc/security/audit_event
+	grep ":AUE_FCHOWN:" /etc/security/audit_event
+	grep ":AUE_FCHMOD:" /etc/security/audit_event
+	grep ":AUE_LCHOWN:" /etc/security/audit_event
+	grep ":AUE_ACLSET:" /etc/security/audit_event
+	grep ":AUE_FACLSET:" /etc/security/audit_event
+	grep ":AUE_CHROOT:" /etc/security/audit_event
+	grep ":AUE_SETREUID:" /etc/security/audit_event
+	grep ":AUE_SETREGID:" /etc/security/audit_event
+	grep ":AUE_FCHROOT:" /etc/security/audit_event
+	grep ":AUE_PFEXEC:" /etc/security/audit_event
+	grep ":AUE_SETUID:" /etc/security/audit_event
+	grep ":AUE_NICE:" /etc/security/audit_event
+	grep ":AUE_SETGID:" /etc/security/audit_event
+	grep ":AUE_PRIOCNTLSYS:" /etc/security/audit_event
+	grep ":AUE_SETEGID:" /etc/security/audit_event
+	grep ":AUE_SETEUID:" /etc/security/audit_event
+	grep ":AUE_SETPPRIV:" /etc/security/audit_event
+	grep ":AUE_SETSID:" /etc/security/audit_event
+	grep ":AUE_SETPGID:" /etc/security/audit_event
+
+	auditconfig -getflags
+	
+	auditconfig -getnaflags
+	
+	auditconfig -getpolicy
+	
+Files and Directories Access Management
+	svccfg -s /system/environment:init listprop umask | grep umask/umask
+	
+---Sticky bit on World writable directories----
+	find / \( -fstype nfs -o -fstype cachefs -o -fstype autofs -o -fstype ctfs -o -fstype mntfs -o -fstype objfs -o -fstype proc \) -prune -o -type d \( -perm -0002 -a ! -perm -1000 \) -ls
+
+---World writable or group writable Home Directories---
+	for dir in `logins -ox | awk -F: '($8 == "PS") { print $6 }'`; do find ${dir} -type d -prune \( -perm -g+w -o -perm -o+r -o -perm -o+w -o -perm -o+x \) -ls; done
+	
+---Ownership of home directory---
+	logins -xo | while read line; do user=`echo ${line} | awk -F: '{ print $1 }'`; home=`echo ${line} | awk -F: '{ print $6 }'`; find ${home} -type d -prune \! -user ${user} -ls; done
+
+---User hidden file---
+	for dir in `logins -ox | awk -F: '($8 == "PS") { print $6 }'`; do find ${dir}/.[A-Za-z0-9]* \! -type l \( -perm -20 -o -perm -02 \) -ls; done
+
+---Ownerless files and directories---
+	find / \( -fstype nfs -o -fstype cachefs -o -fstype autofs -o -fstype ctfs -o -fstype mntfs -o -fstype objfs -o -fstype proc \) -prune -o \( -nouser -o -nogroup \) -ls
+	
+---Executables SUID and SGID---
+	find / \( -fstype nfs -o -fstype cachefs -o -fstype autofs -o -fstype ctfs -o -fstype mntfs -o -fstype objfs -o -fstype proc \) -prune -o -type f -perm -4000 -o -perm -2000 -print
+
+---World-writable files---
+	find / \( -fstype nfs -o -fstype cachefs -o -fstype autofs -o -fstype ctfs -o -fstype mntfs -o -fstype objfs -o -fstype proc \) -prune -o -type f -perm -0002 -print
+	
+---Files and Directories with Extended Attributes---
+	find / \( -fstype nfs -o -fstype cachefs -o -fstype autofs -o -fstype ctfs\ -o -fstype mntfs -o -fstype objfs -o -fstype proc \) -prune -o -xattr -ls
+
+System Access, Authentication and Authorization
+	svcs -Ho state svc:/system/console-login:terma
+	svcs -Ho state svc:/system/console-login:termb
+
+	grep "^ENABLE_NOBODY_KEYS=" /etc/default/keyserv
+	
+	grep "^X11Forwarding" /etc/ssh/sshd_config
+	
+	grep "^MaxAuthTries" /etc/ssh/sshd_config
+
+	grep "^IgnoreRhosts" /etc/ssh/sshd_config
+	
+	grep "^RhostsRSAAuthentication" /etc/ssh/sshd_config
+	
+	grep "^HostbasedAuthentication" /etc/ssh/sshd_config
+	
+	grep "^PermitRootLogin" /etc/ssh/sshd_config
+	
+	grep "^PermitEmptyPasswords" /etc/ssh/sshd_config
+	
+	grep "^StrictModes" /etc/ssh/sshd_config
+	
+	grep "^Protocol" /etc/ssh/sshd_config
+	
+	grep "^Banner" /etc/ssh/sshd_config
+	
+	grep "^Ciphers" /etc/ssh/sshd_config
+	
+	grep "^KexAlgorithms" /etc/ssh/sshd_config
+	
+	cat /etc/pam.conf | egrep 'rsh|rlogin'
+	grep "^#" /etc/pam.conf | grep "pam_rhosts_auth"
+	
+	for dir in `logins -ox | awk -F: '($8 == "PS") { print $6 }'`; do find ${dir}/.rhosts -type f -ls 2>/dev/null; done
+	
+	for dir in `logins -ox | awk -F: '($8 == "PS") { print $6 }'`; do ls -l ${dir}/.netrc 2>/dev/null; done
+
+	for user in `logins -s | awk '{ print $1 }'` aiuser noaccess nobody nobody4; do grep -w "${user}" /etc/ftpd/ftpusers >/dev/null 2>&1; if [ $? != 0 ]; then echo "User '${user}' not in /etc/ftpd/ftpusers."; fi; done
+	for user in `cat /etc/passwd | awk -F: '{print $1}'`; do  echo $user >> ftpusers; done
+
+	grep "^SLEEPTIME=" /etc/default/login
+
+	cat /etc/cron.d/cron.allow
+	cat /etc/cron.d/at.allow	
+	cat /etc/cron.d/cron.deny
+	cat /etc/cron.d/at.deny
+	
+	grep "^CONSOLE=/dev/console" /etc/default/login
+
+	grep "^RETRIES=" /etc/default/login
+
+	grep "^LOCK_AFTER_RETRIES=" /etc/security/policy.conf
+	
+	grep "^UNLOCK_AFTER=" /etc/security/policy.conf
+
+	userattr lock_after_retries [username]
+	
+	eeprom security-mode | awk -F= '{ print $2 }'
+	eeprom security-#badlogins | awk -F= '{ print $2 }'
+
+User Account Management
+	grep "^MAXDAYS=" /etc/default/passwd
+	
+	grep "^MINDAYS=" /etc/default/passwd
+	
+	grep "^WARNDAYS=" /etc/default/passwd
+	
+	grep "^PASSLENGTH=" /etc/default/passwd
+
+	grep "^NAMECHECK=" /etc/default/passwd
+	
+	grep "^HISTORY=" /etc/default/passwd
+	
+	grep "^MINDIFF=" /etc/default/passwd
+	
+	grep "^MINALPHA=" /etc/default/passwd
+	
+	grep "^MINUPPER=" /etc/default/passwd
+
+	grep "^MINLOWER=" /etc/default/passwd
+	
+	grep "^MINNONALPHA=" /etc/default/passwd
+	
+	grep "^MAXREPEATS=" /etc/default/passwd
+	
+	grep "^WHITESPACE=" /etc/default/passwd
+
+	grep "^DICTIONDBDIR=" /etc/default/passwd
+	
+	grep "^DICTIONLIST=" /etc/default/passwd
+	
+	grep "^UMASK=" /etc/default/login
+	
+	grep "^Umask" /etc/proftpd.conf | awk '{ print $2 }'
+	
+	grep "^mesg" /etc/.login
+	
+	grep "^mesg" /etc/profile
+	
+	useradd -D | xargs -n 1 | grep inactive |awk -F= '{ print $2 }'
+	
+	for user in aiuser dhcpserv dladm ftp gdm netadm netcfg noaccess nobody nobody4 openldap pkg5srv svctag unknown webservd xvm; do stat=`passwd -s ${user} | awk '{ print $2 }'`; if [ "${stat}" != "LK" ]; then  echo "Account ${user} is not locked."; fi; done
+	
+	for user in adm bin daemon lp mysql nuucp postgres smmsp sys upnp uucp zfssnap; do stat=`passwd -s ${user} | awk '{ print $2 }'`; if [ "${stat}" != "NL" ]; then  echo "Account ${user} is not non-login."; fi; done
+
+	logins -p
+	
+	logins -o | awk -F: '($2 == 0) { print $1 }'
+		
+	if [ "`echo $PATH | grep :: `" != "" ]; then
+	echo "(FAIL) Empty directory in PATH (::)"
+	else
+	echo "(PASS) No empty directory in PATH (::)"
+	fi
+	if [ "`echo $PATH | grep :$`"  != "" ]; then
+	echo "(FAIL) Trailing : in PATH"
+	else
+	echo "(PASS) No trailing : in PATH"
+	fi
+	p=`echo $PATH | sed -e 's/::/:/' -e 's/:$//' -e 's/:/ /g'`
+	set -- $p
+	while [ "$1" != "" ]; do
+	if [ "$1" = "." ]; then
+	echo "PATH contains ."
+	shift
+	continue 
+	fi
+	if [ -d $1 ]; then
+	dirperm=`ls -ld $1 | cut -f1 -d" "`
+	if [ `echo $dirperm | cut -c6 ` != "-" ]; then
+	echo "(FAIL) Group write permission set on directory $1"
+	else
+	echo "(PASS) Directory $1 is not group-writable"
+	fi
+	if [ `echo $dirperm | cut -c9 ` != "-" ]; then
+	echo "(FAIL) World write permission set on directory $1"
+	else
+	echo "(PASS) Directory $1 is not world-writable"
+	fi 
+	fi
+	shift 
+	done
+
+	logins -xo | awk -F: '($3 == "") { print $1 }'
+
+	logins -xo | while read line; do user=`echo ${line} | awk -F: '{ print $1 }'`; home=`echo ${line} | awk -F: '{ print $6 }'`; if [ -z "${home}" ]; then  echo ${user}; fi; done
+	
+	logins -xo | while read line; do user=`echo ${line} | awk -F: '{ print $1 }'`; home=`echo ${line} | awk -F: '{ print $6 }'`; if [ ! -d "${home}" ]; then echo ${user}; fi; done
+
+	logins -d
+	
+	getent group | cut -f3 -d":" | sort -n | uniq -c |while read x ; do [ -z "${x}" ] && break; set - $x; if [ $1 -gt 1 ]; then grps=`getent group | nawk -F: '($3 == n) { print $1 }' n=$2 | xargs`; echo "Duplicate GID ($2): ${grps}"; fi; done
+	
+	logins -so | awk -F: '{ print $1 }' | while read user; do found=0; for tUser in adm aiuser bin daemon dhcpserv dladm ftp gdm listen lp mysql netadm netcfg noaccess nobody nobody4 nuucp openldap pkg5srv postgres root smmsp svctag sys unknown uucp upnp webservd xvm zfssnap; do if [ ${user} = ${tUser} ]; then found=1; fi; done; if [ $found -eq 0 ]; then echo "Invalid User with Reserved UID: ${user}"; fi; done
+	
+	logins -d
+	
+	getent group | cut -f1 -d":" | sort -n | uniq -c |while read x ; do [ -z "${x}" ] && break; set - $x; if [ $1 -gt 1 ]; then gids=`getent group | nawk -F: '($1 == n) { print $3 }' n=$2 | xargs`; echo "Duplicate Group Name ($2): ${gids}"; fi; done
+	
+Warning Banners
+	cat /etc/motd
+	
+	grep "Security Message" /etc/gdm/Init/Default
+	
+	grep "DisplayConnect" /etc/proftpd.conf
+	
+	grep "^BANNER" /etc/default/telnetd
+
+Miscellaneous
+	/usr/sbin/consadm -p
+
+	svcs -Ho state svc:/network/inetd
+	
+	pkg list | grep armor  (--->penambahan script pengecekan armor)
+
+
+========================================================
+
+grep ":AUE_ACCEPT:" /etc/security/audit_event > /export/home/itsec/Hardening/Export/audit_event-bkp
+grep ":AUE_CONNECT:" /etc/security/audit_event >> /export/home/itsec/Hardening/Export/audit_event-bkp
+grep ":AUE_SOCKACCEPT:" /etc/security/audit_event >> /export/home/itsec/Hardening/Export/audit_event-bkp
+grep ":AUE_SOCKCONNECT:" /etc/security/audit_event >> /export/home/itsec/Hardening/Export/audit_event-bkp
+grep ":AUE_inetd_connect:" /etc/security/audit_event >> /export/home/itsec/Hardening/Export/audit_event-bkp
+grep ":AUE_CHMOD:" /etc/security/audit_event >> /export/home/itsec/Hardening/Export/audit_event-bkp
+grep ":AUE_CHOWN:" /etc/security/audit_event >> /export/home/itsec/Hardening/Export/audit_event-bkp
+grep ":AUE_FCHOWN:" /etc/security/audit_event >> /export/home/itsec/Hardening/Export/audit_event-bkp
+grep ":AUE_FCHMOD:" /etc/security/audit_event >> /export/home/itsec/Hardening/Export/audit_event-bkp
+grep ":AUE_LCHOWN:" /etc/security/audit_event >> /export/home/itsec/Hardening/Export/audit_event-bkp
+grep ":AUE_ACLSET:" /etc/security/audit_event >> /export/home/itsec/Hardening/Export/audit_event-bkp
+grep ":AUE_FACLSET:" /etc/security/audit_event >> /export/home/itsec/Hardening/Export/audit_event-bkp
+grep ":AUE_CHROOT:" /etc/security/audit_event >> /export/home/itsec/Hardening/Export/audit_event-bkp
+grep ":AUE_SETREUID:" /etc/security/audit_event >> /export/home/itsec/Hardening/Export/audit_event-bkp
+grep ":AUE_SETREGID:" /etc/security/audit_event >> /export/home/itsec/Hardening/Export/audit_event-bkp
+grep ":AUE_FCHROOT:" /etc/security/audit_event >> /export/home/itsec/Hardening/Export/audit_event-bkp
+grep ":AUE_PFEXEC:" /etc/security/audit_event >> /export/home/itsec/Hardening/Export/audit_event-bkp
+grep ":AUE_SETUID:" /etc/security/audit_event >> /export/home/itsec/Hardening/Export/audit_event-bkp
+grep ":AUE_NICE:" /etc/security/audit_event >> /export/home/itsec/Hardening/Export/audit_event-bkp
+grep ":AUE_SETGID:" /etc/security/audit_event >> /export/home/itsec/Hardening/Export/audit_event-bkp
+grep ":AUE_PRIOCNTLSYS:" /etc/security/audit_event >> /export/home/itsec/Hardening/Export/audit_event-bkp
+grep ":AUE_SETEGID:" /etc/security/audit_event >> /export/home/itsec/Hardening/Export/audit_event-bkp
+grep ":AUE_SETEUID:" /etc/security/audit_event >> /export/home/itsec/Hardening/Export/audit_event-bkp
+grep ":AUE_SETPPRIV:" /etc/security/audit_event >> /export/home/itsec/Hardening/Export/audit_event-bkp
+grep ":AUE_SETSID:" /etc/security/audit_event >> /export/home/itsec/Hardening/Export/audit_event-bkp
+grep ":AUE_SETPGID:" /etc/security/audit_event >> /export/home/itsec/Hardening/Export/audit_event-bkp
+
+/export/home/itsec/Hardening/Export
+
+ipadm show-prop -p _strong_iss tcp > /export/home/itsec/Hardening/Backup/ipadm-bkp
+ipadm show-prop -p _forward_src_routed ipv4 >> /export/home/itsec/Hardening/Backup/ipadm-bkp
+ipadm show-prop -p _forward_src_routed ipv6 >> /export/home/itsec/Hardening/Backup/ipadm-bkp
+ipadm show-prop -p _forward_directed_broadcasts ip >> /export/home/itsec/Hardening/Backup/ipadm-bkp
+ipadm show-prop -p _respond_to_timestamp ip >> /export/home/itsec/Hardening/Backup/ipadm-bkp
+ipadm show-prop -p _respond_to_timestamp_broadcast ip >> /export/home/itsec/Hardening/Backup/ipadm-bkp
+ipadm show-prop -p _respond_to_address_mask_broadcast ip >> /export/home/itsec/Hardening/Backup/ipadm-bkp
+ipadm show-prop -p _respond_to_echo_broadcast ip >> /export/home/itsec/Hardening/Backup/ipadm-bkp
+ipadm show-prop -p _respond_to_echo_multicast ipv4 >> /export/home/itsec/Hardening/Backup/ipadm-bkp
+ipadm show-prop -p _respond_to_echo_multicast ipv6 >> /export/home/itsec/Hardening/Backup/ipadm-bkp
+ipadm show-prop -p _ignore_redirect ipv4 >> /export/home/itsec/Hardening/Backup/ipadm-bkp
+ipadm show-prop -p _ignore_redirect ipv6 >> /export/home/itsec/Hardening/Backup/ipadm-bkp
+ipadm show-prop -p _strict_dst_multihoming ipv4 >> /export/home/itsec/Hardening/Backup/ipadm-bkp
+ipadm show-prop -p _strict_dst_multihoming ipv6 >> /export/home/itsec/Hardening/Backup/ipadm-bkp
+ipadm show-prop -p send_redirects ipv4 >> /export/home/itsec/Hardening/Backup/ipadm-bkp
+ipadm show-prop -p send_redirects ipv6 >> /export/home/itsec/Hardening/Backup/ipadm-bkp
+ipadm show-prop -p _conn_req_max_q0 tcp >> /export/home/itsec/Hardening/Backup/ipadm-bkp
+ipadm show-prop -p _conn_req_max_q tcp >> /export/home/itsec/Hardening/Backup/ipadm-bkp
+
+routeadm > /export/home/itsec/Hardening/Backup/routeadm-bkp
+
+auditconfig -getplugin audit_binfile > /export/home/itsec/Hardening/Backup/audit_binfile-bkp
+
+auditconfig -getplugin > /export/home/itsec/Hardening/Backup/audit-bkp
+auditconfig -getflags >> /export/home/itsec/Hardening/Backup/audit-bkp
+auditconfig -getnaflags >> /export/home/itsec/Hardening/Backup/audit-bkp
+auditconfig -getpolicy >> /export/home/itsec/Hardening/Backup/audit-bkp
+auditconfig -getcond >> /export/home/itsec/Hardening/Backup/audit-bkp
+
+usermod -K lock_after_retries=no devggdb
+usermod -K lock_after_retries=no admin
+usermod -K lock_after_retries=no itsec
+
+usermod -K lock_after_retries=no ansible
+usermod -K lock_after_retries=no oracleoc
